@@ -60,7 +60,7 @@ class StdOutListener(StreamListener):
     def ConoceDia(self,time):
         url = 'http://localhost/SaberDia/nuSoap.php?wsdl'
         client = Client(url)
-        datos={'email':'xxx@gmail.com','nombre':'fernando','telefono':'56907500','ano_nac':'28/10/1988'}
+        #datos={'email':'xxx@gmail.com','nombre':'fernando','telefono':'56907500','ano_nac':'28/10/1988'}
         client.options.cache.clear() #make this line
         cl=client.service.dia_tuit(time)
         return cl

@@ -99,7 +99,7 @@ def construye(l):
 			q.join()	
 			t.join()
 			j.join()
-			x.join()	
+			x.join()
 			i+=4
 			
 			

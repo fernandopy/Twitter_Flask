@@ -130,6 +130,10 @@ $(document).ready(function(){
     			});
 
             }
+                
+                function grafica(){
+                	
+                }//fin funcion grafica
 
             },//FIN SUCESS
             error: function(error) {
