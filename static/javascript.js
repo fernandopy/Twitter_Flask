@@ -6,6 +6,7 @@ $(document).ready(function(){
     
 	//$('#info').html("<br><b>Loading grafica...</b>");
     map = new OpenLayers.Map("info");
+   
     var mapnik = new OpenLayers.Layer.OSM();
     map.addLayer(mapnik);
 
@@ -24,11 +25,11 @@ $(document).ready(function(){
             data: $('form').serialize(),
             type: 'POST',
             success: function(response) {
-                //var obj =response;
-                //alert(response);
-                var obj = jsonQ(response);
+                
+            	var obj = jsonQ(response);
             
                 initMap();
+               
             
                 function initMap() {
 
@@ -130,11 +131,6 @@ $(document).ready(function(){
     			});
 
             }
-                
-                function grafica(){
-                	
-                }//fin funcion grafica
-
             },//FIN SUCESS
             error: function(error) {
                 alert(error);
