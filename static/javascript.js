@@ -25,7 +25,7 @@ $(document).ready(function(){
             data: $('form').serialize(),
             type: 'POST',
             success: function(response) {
-                
+                //alert(response);
             	var obj = jsonQ(response);
             
                 initMap();
@@ -43,7 +43,7 @@ $(document).ready(function(){
                     obj = obj.value()[0];//NOOOOOOBORRARRRRR
 
 
-                    var your_context = {
+                    /*var your_context = {
                         getColor: function (featur) {
                             if (featur.attributes.sent == "negative") {
                                 return "blue";
@@ -51,6 +51,27 @@ $(document).ready(function(){
                                 return "red";
                             } else if (featur.attributes.sent =='neutral') {
                                 return "green";
+                            } else {
+                                return "yellow";
+                            }
+                        }
+                    };*/
+                    var your_context = {
+                        getColor: function (featur) {
+                            if (featur.attributes.day == "Lunes") {
+                                return "blue";
+                            } else if (featur.attributes.day == "Martes") {
+                                return "red";
+                            } else if (featur.attributes.day =='Miercoles') {
+                                return "green";
+                            } else if (featur.attributes.day == "Jueves") {
+                                return "yellow";
+                            } else if (featur.attributes.day =='Viernes') {
+                                return "pink";
+                            } else if (featur.attributes.day == "Sabado") {
+                                return "brown";
+                            } else if (featur.attributes.day =='Domingo') {
+                                return "black";
                             } else {
                                 return "yellow";
                             }
@@ -111,7 +132,7 @@ $(document).ready(function(){
             			//alert();
             			//validar xml con xmlschema 
             				var xml_str = x2js.json2xml_str({"root":e.feature.attributes});
-        					 var Module = {
+                            /* var Module = {
         					 	xml: xml_str,//"<root><text>La fiesta TID UAM-X :) (@ Av. del Taller Y Galindo y Villa w/ @itzelsnchezcru3) https://t.co/t25gZ4tdiu</text><day>Domingo</day><sent>positive</sent></root>",
     							schema: '<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="root"><xs:complexType><xs:sequence><xs:element type="xs:string" name="text"/><xs:element type="xs:string" name="day"/><xs:element type="xs:string" name="sent"/></xs:sequence></xs:complexType></xs:element></xs:schema>'
 							};
@@ -125,7 +146,26 @@ $(document).ready(function(){
 									
 								}
 							}else
-								alert(xm.errors);
+								alert(xm.errors);*/
+                            var Module = {
+                                xml: xml_str,//"<root><text>La fiesta TID UAM-X :) (@ Av. del Taller Y Galindo y Villa w/ @itzelsnchezcru3) https://t.co/t25gZ4tdiu</text><day>Domingo</day><sent>positive</sent></root>",
+                                schema: '<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="root"><xs:complexType><xs:sequence><xs:element type="xs:string" name="hora"/><xs:element type="xs:string" name="city"/><xs:element type="xs:string" name="fecha"/><xs:element type="xs:string" name="subtype"/><xs:element type="xs:string" name="street"/><xs:element type="xs:string" name="day"/></xs:sequence></xs:complexType></xs:element></xs:schema>'
+                            };
+                            var xm = xmllint.validateXML(Module);
+                            if (xm.errors == null){
+                                var xmlDoc = $.parseXML(xml_str);
+                                if(xmlDoc){
+                                    
+                                    $('#hora').html(xmlDoc.getElementsByTagName('hora')[0].childNodes[0].nodeValue);
+                                    $('#city').html(xmlDoc.getElementsByTagName('city')[0].childNodes[0].nodeValue);
+                                    $('#fecha').html(xmlDoc.getElementsByTagName('fecha')[0].childNodes[0].nodeValue);
+                                    $('#subtype').html(xmlDoc.getElementsByTagName('subtype')[0].childNodes[0].nodeValue);
+                                    $('#street').html(xmlDoc.getElementsByTagName('street')[0].childNodes[0].nodeValue);
+                                    $('#day').html(xmlDoc.getElementsByTagName('day')[0].childNodes[0].nodeValue);
+                                    
+                                }
+                            }else
+                                alert(xm.errors);
 
         				}
     			});

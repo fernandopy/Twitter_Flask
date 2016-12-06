@@ -88,4 +88,4 @@ if __name__ == '__main__':
     stream = Stream(auth, listener)
     stream.filter(locations=[-99.36666666,19.05,-98.95,19.6],languages=['es'])
 	#stream.filter(locations=[-99.36666666,19.05,-98.95,19.6],languages=['es'],track=['sacmex'])
-	#stream.filter(languages=['es'],track=['sacmex'])
+	
