@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin-1 -*-
+# -*- coding: UTF8 -*-
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
@@ -8,6 +8,7 @@ from pymongo import MongoClient
 import pymongo
 import requests.packages.urllib3
 from suds.client import Client
+import unirest
 
 requests.packages.urllib3.disable_warnings()
 
@@ -24,6 +25,8 @@ class StdOutListener(StreamListener):
         
         #print(js['text'].encode('utf8','replace'))
         print(js['text'])
+        #print(self.sent(js['text'].encode('utf8','replace')))
+        #print(self.sentimientos("eres un pendejo"))
         js['sent']=self.sentimientos(js['text'].encode('utf8','replace'))
         print(js['sent'])
         js['day']=self.ConoceDia(str(js['timestamp_ms']))
@@ -35,7 +38,7 @@ class StdOutListener(StreamListener):
         try:
             client = MongoClient()
             db = client.Twitter_Xml#Twitter es el nombre de la base
-            db.tuits.insert(js)
+            db.epn.insert(js)
             print "----"
         except pymongo.errors.ConnectionFailure, e:
             print "Could not connect to server: %s" % e
@@ -43,6 +46,7 @@ class StdOutListener(StreamListener):
         #map(js.pop,['entities'])#para remover una llave
         #js['perro'] = 'huevos'#para agregar una llave al diccionario
         #print(js['perro'])
+        
     def sentimientos(self,tuit):
         requests.packages.urllib3.disable_warnings()
         sent = None
@@ -54,8 +58,19 @@ class StdOutListener(StreamListener):
             jsonRespuesta= requests.get(ligaPeticion).json()
             sent = jsonRespuesta["aggregate"]["sentiment"]
         except:
-            print('error')
+            sent = self.sent(tuit)
         return sent
+    
+    def sent (self,tuit):
+		# These code snippets use an open-source library. http://unirest.io/python
+		response = unirest.post("https://community-sentiment.p.mashape.com/text/",
+			headers={"X-Mashape-Key": "XW6ZAgErxomshcOBCKM01jEP4Sbwp1ubwsAjsnIhPblvxkTJU7","Content-Type": "application/x-www-form-urlencoded","Accept": "application/json"},
+			params={
+				"txt": tuit#"feliz"#tuit#"Trabajando horas extras my lord @EPN  para que la gaviota use esas tangas que se le ven perfectas, lo bueno casi no cuenta...."
+			}
+		)
+		return response.body['result']['sentiment']
+		
 
     def ConoceDia(self,time):
         url = 'http://localhost/SaberDia/nuSoap.php?wsdl'
@@ -86,6 +101,8 @@ if __name__ == '__main__':
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     stream = Stream(auth, listener)
-    stream.filter(locations=[-99.36666666,19.05,-98.95,19.6],languages=['es'])
-	#stream.filter(locations=[-99.36666666,19.05,-98.95,19.6],languages=['es'],track=['sacmex'])
+    stream.filter(locations=[-99.36666666,19.05,-98.95,19.6],track=['epn','EPN'])
+    #stream.filter(track=['PenaNieto','EPN'])
+    #stream.filter(locations=[-118.407,14.53209836,-86.71040527,32.718653],languages=['es'],track=['epn','EPN'])
+	#stream.filter(locations=[-99.36666666,19.05,-98.95,19.6],track=['epn','EPN'])
 	

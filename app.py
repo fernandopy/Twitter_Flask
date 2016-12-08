@@ -7,23 +7,19 @@ import threading
 from time import time
 
 class EmbedDoc(Document):
-   __collection__ = 'tuits'
-   structure = {
-      'geometry':{
-         'type':str,
-         'coordinates':[],
-       },
-       'properties':{
-          'street':unicode,
-          'city':unicode,
-          'day':unicode,
-          'fecha':unicode,
-          'hora':unicode,
-          'subtype':unicode,
-        }
-   }
-   default_values = {'geometry.type':'Point','properties.city':'desconocido'}
-    
+	 __collection__ = 'tuits'
+	 structure = {
+         'geometry':{
+         	'type':unicode,
+         	'coordinates':[],
+         },
+         'properties':{
+         	'text':unicode,
+         	'sent':unicode,
+         	'day':unicode,
+         }
+     }
+
 class MyDocument(Document):
     __collection__='tuits'
     structure = {
@@ -55,15 +51,13 @@ def index():
 
 @app.route('/mongo', methods=["POST"])
 def conecta_mongo():
-	app.config['MONGODB_DATABASE']='Waze'
+	app.config['MONGODB_DATABASE']='Twitter_Xml'
 	app.config['MONGODB_HOST']='localhost'
 	
 	with app.app_context():
 		tiempo_inicial = time()
-		#a = db.tuits.find({'$and':[{'geometry':{'$ne':None}},{'sent':{'$ne':None}}]},{'_id':0,'text':1,'sent':1,'geometry':1,'day':1})
-		a= db.reportes.find({'$and':[{"subtype":{'$ne':None}},{"day":{'$ne':None}},{"type":"ACCIDENT"},{"street":{'$ne':None}},{"city":{'$ne':None}}]},{"street":1,"city":1,"fecha":1,"day":1,"location":1,"hora":1,"subtype":1,"_id":0})
+		a = db.tuits.find({'$and':[{'geometry':{'$ne':None}},{'sent':{'$ne':None}}]},{'_id':0,'text':1,'sent':1,'geometry':1,'day':1})
 		a = list(a)
-		
 		x=construye(a)
 		#print(len(x))
 		mydoc = db.MyDocument()
@@ -107,6 +101,9 @@ def construye(l):
 			j.join()
 			x.join()
 			i+=4
+			
+			
+			
 		else:
 			break
 		
@@ -114,22 +111,16 @@ def construye(l):
 	return arr
 		#"""
 def uso_hilos(embebed,post):
-
-	lock.acquire()
-	geo=[]
-	geo.append(post['location']['x'])
-	geo.append(post['location']['y'])
-
-	embebed['geometry']['coordinates']=geo
-	embebed['properties']['street']=post['street']
-	embebed['properties']['city']=post['city']
-	embebed['properties']['fecha']=post['fecha']
+	
+	embebed['geometry']['type']=post['geometry']['type']
+	embebed['geometry']['coordinates']=post['geometry']['coordinates']
+	embebed['properties']['text']=post['text']
+	embebed['properties']['sent']=post['sent']
 	embebed['properties']['day']=post['day']
-	embebed['properties']['hora']=post['hora']
-	embebed['properties']['subtype']=post['subtype']
 	embebed.validate()
 	embebed.validation_errors
 	embebed.save()
+	lock.acquire()
 	arr.append(embebed)
 	lock.release()
 	
