@@ -9,13 +9,14 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Bootstrap Admin Theme</title>
+    <title>Tuits</title>
      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"
           rel="stylesheet">
     <script src="{{url_for('static', filename='javascript.js')}}"></script>
     
-
+   
+   <script src="{{url_for('static', filename='Chart.js-master/Chart.min.js')}}"></script>
     <!-- Bootstrap Core CSS -->
     <link href="../static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <script src="{{url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css')}}"></script>
@@ -40,7 +41,10 @@
 
     <script src="{{url_for('static', filename='jsonQ-master/jsonQ.min.js')}}"></script>
 
-    <script src="{{url_for('static', filename='d3/d3.min.js')}}"></script>
+    
+
+    
+    
 
     <script src="{{url_for('static', filename='x2js-master/xml2json.min.js')}}"></script>
     <script src="{{url_for('static', filename='xml.js-master/xmllint.js')}}"></script>
@@ -494,21 +498,25 @@
                     <!-- /.panel -->
                 </div>
                 <!-- /.col-lg-6 -->
-                <!--div class="col-lg-6">
+                <div class="col-lg-6">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Moving Line Chart Example
+                            Chart Interjet
                         </div>
                        
                         <div class="panel-body">
                             <div class="flot-chart">
-                                <div class="flot-chart-content" id="flot-line-chart-moving"></div>
+                                <div class="flot-chart-content" id="chart">
+                                   
+                                    <canvas id="canvas"></canvas>
+                                     <button class="btn btn-lg btn-primary btn-block" type="button">Chart </button>
+                                </div>
                             </div>
                         </div>
                         
                     </div>
                     
-                </div-->
+                </div>
                 <!-- /.col-lg-6 -->
                 <!--div class="col-lg-6">
                     <div class="panel panel-default">

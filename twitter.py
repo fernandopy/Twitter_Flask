@@ -9,47 +9,81 @@ import pymongo
 import requests.packages.urllib3
 from suds.client import Client
 import unirest
+import six
+from six.moves import http_client as httplib
+from selenium import webdriver
+from time import sleep
+from bs4 import BeautifulSoup
+import requests
+import threading
 
 requests.packages.urllib3.disable_warnings()
 
 
 class StdOutListener(StreamListener):
     def on_data(self,data):
-        #print('Tweet text: ' + data)
-        js = json.loads(data)
-        cord = js['coordinates']
-        #print (cord)
-        map(js.pop,['coordinates'])#para remover una llave
-        js['geometry']=cord
-        
-        
-        #print(js['text'].encode('utf8','replace'))
-        print(js['text'])
-        #print(self.sent(js['text'].encode('utf8','replace')))
-        #print(self.sentimientos("eres un pendejo"))
-        js['sent']=self.sentimientos(js['text'].encode('utf8','replace'))
-        print(js['sent'])
-        js['day']=self.ConoceDia(str(js['timestamp_ms']))
-        
-            
-        #self.sentimientos('holá'.decode('utf8','replace'))
-        #print(js['geometry'])
-        
-        try:
-            client = MongoClient()
-            db = client.Twitter_Xml#Twitter es el nombre de la base
-            db.epn.insert(js)
-            print "----"
-        except pymongo.errors.ConnectionFailure, e:
-            print "Could not connect to server: %s" % e
-        #print(js['entities']['hashtags'])#es una lista
-        #map(js.pop,['entities'])#para remover una llave
-        #js['perro'] = 'huevos'#para agregar una llave al diccionario
-        #print(js['perro'])
-        
+		js = json.loads(data)
+		cord = js['coordinates']
+		map(js.pop,['coordinates'])#para remover una llave
+		js['geometry']=cord
+		print(js['text'])
+		#js['sent']=self.sentimientos(js['text'].encode('utf8','replace'))
+		#print(js['sent'])
+		print('------------------')
+		js['day']=self.ConoceDia(str(js['timestamp_ms']))
+		try:
+			client = MongoClient()
+			db = client.Twitter_Xml#Twitter es el nombre de la base
+			db.coca.insert(js)
+			print "----"
+		except pymongo.errors.ConnectionFailure, e:
+			print "Could not connect to server: %s" % e
+    
+    
+    """def spider(self,text):
+		print('aburrrrriiiiiddooooo')
+		url = "https://store.apicultur.com/apis/info?name=stmtlk&version=1.0.0&provider=stmtlk"
+		browser = webdriver.Chrome(executable_path=r"/home/fer/Descargas/Chrome/chromedriver")
+		try:
+			browser.get(url)
+			sleep(5)
+			i = browser.find_element_by_class_name('body-textarea')
+			i.send_keys('{"texto":"'+text+'"}')
+			browser.find_element_by_class_name('submit').click()
+			sleep(3)
+			html_source = browser.page_source
+			"--------------------scraping-----------------------------------------"
+			
+			html =BeautifulSoup(html_source,"lxml")
+			entradas = html.find('div',{'class':'block response_body'})
+			aux = entradas.find('pre')
+			aux = str(aux)
+			x = aux[5:len(aux)-6] 
+			sentimiento = x.split('<br/>')
+			sent = sentimiento[3][18:-2]
+			"------------------scraping-----------------------------------------"	
+			sleep(60)
+			browser.quit()
+			return sent
+		except Exception,e:
+			print(e)
+			return "error"
+	
+	#def scraping(html):
+	#	html =BeautifulSoup(html,"lxml")
+	#	entradas = html.find('div',{'class':'block response_body'})
+	#	aux = entradas.find('pre')
+	#	aux = str(aux)
+	#	x = aux[5:len(aux)-6] 
+	#	sentimiento = x.split('<br/>')
+	#	return sentimiento[3][18:-2]#"""		
+			
+	    
+	
+    
+    
     def sentimientos(self,tuit):
-        requests.packages.urllib3.disable_warnings()
-        sent = None
+    	sent = None
         apikey = 'ab881ef9-5941-45d7-95a7-595fc89d129d'
         lenguaje = 'spa'
         ligaPeticion ='https://api.havenondemand.com/1/api/sync/analyzesentiment/v1?text={0}&language={1}&apikey={2}'
@@ -62,20 +96,18 @@ class StdOutListener(StreamListener):
         return sent
     
     def sent (self,tuit):
-		# These code snippets use an open-source library. http://unirest.io/python
 		response = unirest.post("https://community-sentiment.p.mashape.com/text/",
 			headers={"X-Mashape-Key": "XW6ZAgErxomshcOBCKM01jEP4Sbwp1ubwsAjsnIhPblvxkTJU7","Content-Type": "application/x-www-form-urlencoded","Accept": "application/json"},
 			params={
-				"txt": tuit#"feliz"#tuit#"Trabajando horas extras my lord @EPN  para que la gaviota use esas tangas que se le ven perfectas, lo bueno casi no cuenta...."
+				"txt": tuit
 			}
 		)
-		return response.body['result']['sentiment']
+		return response.body['result']['sentiment']#"""
 		
 
     def ConoceDia(self,time):
         url = 'http://localhost/SaberDia/nuSoap.php?wsdl'
         client = Client(url)
-        #datos={'email':'xxx@gmail.com','nombre':'fernando','telefono':'56907500','ano_nac':'28/10/1988'}
         client.options.cache.clear() #make this line
         cl=client.service.dia_tuit(time)
         return cl
@@ -91,18 +123,27 @@ class StdOutListener(StreamListener):
     def on_timeout(self):
         print('Timeout...')
         return True # To continue listening
+
+
  
 if __name__ == '__main__':
-    access_token = "3253347468-48d57nPHkARxBKMKl7j9DWueevTNsdpYLykOvIM"
-    access_token_secret = "Smpknn1UM7LGE1Qref9B9TRREI2poiYBWlBrUrT0oK3Tz"
-    consumer_key = "B4jE08jICKyeNh7aob8fACuF2"
-    consumer_secret = "DGnEKSAaWtagLESCD4QktYX9JIDjngjr7NAJ0e3erIzJg0aH4L"
-    listener = StdOutListener()
-    auth = OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-    stream = Stream(auth, listener)
-    stream.filter(locations=[-99.36666666,19.05,-98.95,19.6],track=['epn','EPN'])
-    #stream.filter(track=['PenaNieto','EPN'])
-    #stream.filter(locations=[-118.407,14.53209836,-86.71040527,32.718653],languages=['es'],track=['epn','EPN'])
-	#stream.filter(locations=[-99.36666666,19.05,-98.95,19.6],track=['epn','EPN'])
 	
+	while True:
+		try:
+			access_token = "3253347468-48d57nPHkARxBKMKl7j9DWueevTNsdpYLykOvIM"
+			access_token_secret = "Smpknn1UM7LGE1Qref9B9TRREI2poiYBWlBrUrT0oK3Tz"
+			consumer_key = "B4jE08jICKyeNh7aob8fACuF2"
+			consumer_secret = "DGnEKSAaWtagLESCD4QktYX9JIDjngjr7NAJ0e3erIzJg0aH4L"
+			listener = StdOutListener()
+			auth = OAuthHandler(consumer_key, consumer_secret)
+			auth.set_access_token(access_token, access_token_secret)
+			stream = Stream(auth, listener)
+			#stream.filter(locations=[-118.407,14.53209836,-86.71040527,32.718653],languages=['es'],track=['cocacola','pepsi'])
+			#stream.filter(locations=[-99.36666666,19.05,-98.95,19.6],track=['epn','EPN'])
+			stream.filter(track=['interjet','aereomexico','volaris'])
+			#stream.filter(locations=[-118.407,14.53209836,-86.71040527,32.718653],languages=['es'],track=['trafico','muertes'],stall_warnings=True)
+			#stream.filter(locations=[-99.36666666,19.05,-98.95,19.6],languages=['es'],track=['epn','EPN'])
+			
+		except :
+			continue
+			print('error')

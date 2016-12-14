@@ -2,10 +2,10 @@
 var map;
 
 $(document).ready(function(){
-	var x2js = new X2JS();
+	
+    var x2js = new X2JS();
     
-	//$('#info').html("<br><b>Loading grafica...</b>");
-    map = new OpenLayers.Map("info");
+	map = new OpenLayers.Map("info");
    
     var mapnik = new OpenLayers.Layer.OSM();
     map.addLayer(mapnik);
@@ -25,8 +25,7 @@ $(document).ready(function(){
             data: $('form').serialize(),
             type: 'POST',
             success: function(response) {
-                //alert(response);
-            	var obj = jsonQ(response);
+                var obj = jsonQ(response);
             
                 initMap();
                
@@ -45,11 +44,11 @@ $(document).ready(function(){
 
                     var your_context = {
                         getColor: function (featur) {
-                            if (featur.attributes.sent == "negative") {
+                            if (featur.attributes.sent == "negative"  || featur.attributes.sent =='Negative') {
                                 return "blue";
-                            } else if (featur.attributes.sent == "positive") {
+                            } else if (featur.attributes.sent == "positive"  || featur.attributes.sent =='Positive') {
                                 return "red";
-                            } else if (featur.attributes.sent =='neutral') {
+                            } else if (featur.attributes.sent =='neutral' || featur.attributes.sent =='Neutral') {
                                 return "green";
                             } else {
                                 return "yellow";
@@ -133,7 +132,8 @@ $(document).ready(function(){
 			    //Se agrega el control al map y se activa
 			     map.addControl(selectControl);
     			 selectControl.activate();
-    				//geojson_layer.addFeatures(createFeatures());
+    			
+                	//geojson_layer.addFeatures(createFeatures());
     				//agregar a la capa de los puntos que muestre la info de cada punto
                 geojson_layer.events.on({"featureselected": function(e) {
             			//alert();
@@ -184,6 +184,48 @@ $(document).ready(function(){
             error: function(error) {
                 alert(error);
             }
-        });//*/
+        });//FIN AJAX*/
     //});
+    $('button').click(function() {
+        $.ajax({
+                url: '/grafica',
+                data: $('form').serialize(),
+                type: 'POST',
+                success: function(response) {
+                     //alert(response);
+                     var obj = jsonQ(response);
+                     cant = obj.find('cantidad');
+                     label = obj.find('label');
+                     
+                    var dData = function() {
+                                  return Math.round(Math.random() * 90) + 10
+                                };
+
+                                var barChartData = {
+                                  labels: label.value()[0],
+                                  datasets: [{
+                                    fillColor: "rgba(0,60,100,1)",
+                                    strokeColor: "black",
+                                    data: cant.value()[0]
+                                  }]
+                                }
+
+                                var index = 11;
+                                var ctx = document.getElementById("canvas").getContext("2d");
+                                var barChartDemo = new Chart(ctx).Bar(barChartData, {
+                                  responsive: true,
+                                  barValueSpacing: 2
+                                });
+                                /*setInterval(function() {
+                                  barChartDemo.removeData();
+                                  barChartDemo.addData([dData()], "dD " + index);
+                                  index++;
+                                }, 3000);*/
+                },//FIN SUCCESS BOTTON
+
+                error: function(error) {
+                    alert(error);
+                } 
+        });
+});
 });
