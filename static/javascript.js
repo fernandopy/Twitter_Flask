@@ -187,10 +187,18 @@ $(document).ready(function(){
         });//FIN AJAX*/
     //});
     $('button').click(function() {
+        
+        setInterval(function() {
+           ajax_call();                       
+        }, 5000);
+
+        function ajax_call(){
         $.ajax({
                 url: '/grafica',
                 data: $('form').serialize(),
                 type: 'POST',
+                timeout:3000,
+
                 success: function(response) {
                      //alert(response);
                      var obj = jsonQ(response);
@@ -225,7 +233,10 @@ $(document).ready(function(){
 
                 error: function(error) {
                     alert(error);
-                } 
-        });
-});
+                },
+                 
+            });
+        }//fin functionajax_call()
+        
+    });
 });

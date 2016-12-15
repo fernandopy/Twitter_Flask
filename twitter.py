@@ -40,46 +40,7 @@ class StdOutListener(StreamListener):
 			print "Could not connect to server: %s" % e
     
     
-    """def spider(self,text):
-		print('aburrrrriiiiiddooooo')
-		url = "https://store.apicultur.com/apis/info?name=stmtlk&version=1.0.0&provider=stmtlk"
-		browser = webdriver.Chrome(executable_path=r"/home/fer/Descargas/Chrome/chromedriver")
-		try:
-			browser.get(url)
-			sleep(5)
-			i = browser.find_element_by_class_name('body-textarea')
-			i.send_keys('{"texto":"'+text+'"}')
-			browser.find_element_by_class_name('submit').click()
-			sleep(3)
-			html_source = browser.page_source
-			"--------------------scraping-----------------------------------------"
-			
-			html =BeautifulSoup(html_source,"lxml")
-			entradas = html.find('div',{'class':'block response_body'})
-			aux = entradas.find('pre')
-			aux = str(aux)
-			x = aux[5:len(aux)-6] 
-			sentimiento = x.split('<br/>')
-			sent = sentimiento[3][18:-2]
-			"------------------scraping-----------------------------------------"	
-			sleep(60)
-			browser.quit()
-			return sent
-		except Exception,e:
-			print(e)
-			return "error"
-	
-	#def scraping(html):
-	#	html =BeautifulSoup(html,"lxml")
-	#	entradas = html.find('div',{'class':'block response_body'})
-	#	aux = entradas.find('pre')
-	#	aux = str(aux)
-	#	x = aux[5:len(aux)-6] 
-	#	sentimiento = x.split('<br/>')
-	#	return sentimiento[3][18:-2]#"""		
-			
-	    
-	
+    
     
     
     def sentimientos(self,tuit):

@@ -10,15 +10,20 @@ import sys
 
 
 def update():
-	client = MongoClient()
-	db = client.Twitter_Xml
-	for post in  db.coca.find({"sent":None},no_cursor_timeout=True):
-		id = post['id']
-		print(post['text'])
-		sent = bot(unicode(post['text']))
-		print(sent)
-		db.reportes.update({'id':id},{'$set':{'sent':sent}},no_cursor_timeout=True)
-			
+	while True:
+		try:
+			client = MongoClient()
+			db = client.Twitter_Xml
+			for post in  db.coca.find({"sent":None},no_cursor_timeout=True):
+				id = post['id']
+				text = post['text'].replace('"',"'")
+				text = text.replace('\n', ' ')
+				print(text)
+				sent = bot(unicode(text.encode('ascii', 'ignore')))
+				print(sent)
+				db.coca.update({'id':id},{'$set':{'sent':sent}},no_cursor_timeout=True)
+		except pymongo.errors.OperationFailure:
+			continue		
 
 def bot(text):
 	url = "https://store.apicultur.com/apis/info?name=stmtlk&version=1.0.0&provider=stmtlk"
@@ -33,7 +38,7 @@ def bot(text):
 		sleep(3)
 		html_source = browser.page_source
 		sent=scraping(html_source)
-		#sleep(30000)
+		#sleep(10)
 		browser.quit()
 		return sent
 	except Exception,e:

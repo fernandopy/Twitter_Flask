@@ -119,7 +119,9 @@ def grafica():
 	app.config['MONGODB_DATABASE']='Twitter_Xml'
 	app.config['MONGODB_HOST']='localhost'
 
-	a = db.coca.aggregate([{'$match':{'text':{'$regex':'interjet','$options':'i'}}},{'$group':{'_id':'$day','suma':{'$sum':1}}}])
+	#a = db.coca.aggregate([{'$match':{'$and':[{'text':{'$regex':'interjet','$options':'i'}},{'sent',{'$ne':'s report'}}]}},{'$group':{'_id':'$sent','suma':{'$sum':1}}}])
+	a = db.coca.aggregate([{'$match':{'$and':[{'text':{'$regex':'interjet','$options':'i'}},{'sent':{'$ne':'s report'}}]}},{'$group':{'_id':'$sent','suma':{'$sum':1}}}])
+
 	print(a)
 	res = a["result"]
 	for i in res:
