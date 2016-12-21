@@ -21,7 +21,7 @@ $(document).ready(function(){
     	//var user = $('#txtUsername').val();
         //var pass = $('input[name="password"]').val();
         $.ajax({
-            url: '/mongo',
+            url: '/mong',
             data: $('form').serialize(),
             type: 'POST',
             success: function(response) {
@@ -186,57 +186,113 @@ $(document).ready(function(){
             }
         });//FIN AJAX*/
     //});
-    $('button').click(function() {
+
+    var obj_inter;
+
+    $('#btn_chart').click(function() {
         
         setInterval(function() {
            ajax_call();                       
         }, 5000);
+        
 
         function ajax_call(){
-        $.ajax({
-                url: '/grafica',
-                data: $('form').serialize(),
-                type: 'POST',
-                timeout:3000,
+            $.ajax({
+                    url: '/grafica',
+                    data: $('form').serialize(),
+                    type: 'POST',
+                   
 
-                success: function(response) {
-                     //alert(response);
-                     var obj = jsonQ(response);
-                     cant = obj.find('cantidad');
-                     label = obj.find('label');
+                    success: function(response) {
+                         //alert(response);
+                         obj_inter = jsonQ(response);
+                         cant = obj_inter.find('cantidad');
+                         label = obj_inter.find('label');
+                         
+                        var barChartData = {
+                            labels: label.value()[0],
+                            datasets: [{
+                                fillColor: "rgba(0,60,100,1)",
+                                strokeColor: "black",
+                                data: cant.value()[0]
+                             }]
+                             
+                        }
+                        var ctx = document.getElementById("canvas").getContext("2d");
+                        var barChartDemo = new Chart(ctx).Bar(barChartData, {
+                            responsive: true,
+                            barValueSpacing: 2
+                        });
+
+                    },//FIN SUCCESS BOTTON
+
+                    error: function(error) {
+                        alert(error);
+                    },
                      
-                    var dData = function() {
-                                  return Math.round(Math.random() * 90) + 10
-                                };
-
-                                var barChartData = {
-                                  labels: label.value()[0],
-                                  datasets: [{
-                                    fillColor: "rgba(0,60,100,1)",
-                                    strokeColor: "black",
-                                    data: cant.value()[0]
-                                  }]
-                                }
-
-                                var index = 11;
-                                var ctx = document.getElementById("canvas").getContext("2d");
-                                var barChartDemo = new Chart(ctx).Bar(barChartData, {
-                                  responsive: true,
-                                  barValueSpacing: 2
-                                });
-                                /*setInterval(function() {
-                                  barChartDemo.removeData();
-                                  barChartDemo.addData([dData()], "dD " + index);
-                                  index++;
-                                }, 3000);*/
-                },//FIN SUCCESS BOTTON
-
-                error: function(error) {
-                    alert(error);
-                },
-                 
             });
         }//fin functionajax_call()
         
-    });
+    });//fin btn_chart
+
+     $('#btn_report').click(function() {
+
+        setInterval(function() {
+           report();                       
+        }, 7000);
+        
+
+        function report(){  
+            var sentimiento =  document.getElementById('sent').value;
+            var xml = new XMLWriter();
+            
+            var oj =obj_inter.find('lista');
+
+            var personObj = oj.find('sent', function () {
+                return this == sentimiento;
+            }).parent();
+            //crea XML ----------------------------------------------------
+            xml.writeStartDocument(true);
+            xml.writeStartElement('tuits');
+            
+            personObj.each(function (index, path, value) {
+                 xml.writeStartElement('tuit');
+                    xml.writeElementString('text',value.text);
+                    xml.writeElementString('sent',value.sent);
+                    xml.writeElementString('day',value.day);
+                 xml.writeEndElement();
+                //alert(value.sent);
+            });
+            xml.writeEndElement();
+            xml.writeEndDocument();
+            xml_str= xml.flush();
+            xml_str = xml_str.replace("true", "no"); 
+            //------------------------------------------------------
+
+            //----------------VALIDA XML----------------------
+            var Module = {
+                    xml: xml_str,
+                    schema: '<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:simpleType name="text_tuit"><xs:restriction base="xs:string"><xs:maxLength value="140"/></xs:restriction></xs:simpleType><xs:simpleType name="sent_tuit"><xs:restriction base="xs:string"><xs:enumeration value="NEUTRA"/><xs:enumeration value="POSITIVA"/><xs:enumeration value="NEGATIVA"/></xs:restriction></xs:simpleType><xs:element name="tuits"><xs:complexType><xs:sequence><xs:element name="tuit" maxOccurs="unbounded" minOccurs="0"><xs:complexType><xs:sequence><xs:element type="text_tuit" name="text"/><xs:element type="sent_tuit" name="sent"/><xs:element type="xs:string" name="day"/></xs:sequence></xs:complexType></xs:element></xs:sequence></xs:complexType></xs:element></xs:schema>'
+            };
+                                
+            var xm = xmllint.validateXML(Module);
+                if (xm.errors == null){
+                    var xmlDoc = $.parseXML(xml_str);
+                    if(xmlDoc){
+                        //--------------------------construye la tabla------------------------------- 
+                        var table = "<tr><th>Text</th><th>Sentimiento</th><th>Day</th></tr>";
+                        var x = xmlDoc.getElementsByTagName("tuit");
+                        for(i = 0 ; i<x.length;i++){
+                            table += "<tr><td>"+x[i].getElementsByTagName("text")[0].childNodes[0].nodeValue+
+                            "</td><td>"+x[i].getElementsByTagName("sent")[0].childNodes[0].nodeValue+ "</td><td>"+
+                            x[i].getElementsByTagName("day")[0].childNodes[0].nodeValue+"</td></tr>";
+                        }     
+                    }   document.getElementById("demo").innerHTML = table;
+                }else
+                    alert(xm.errors);
+            //----------------VALIDA XML----------------------
+        }//fin function report
+        
+    });//FIN BUTTON REPORT
+
 });

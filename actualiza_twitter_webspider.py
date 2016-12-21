@@ -7,6 +7,10 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import sys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 
 
 def update():
@@ -17,7 +21,7 @@ def update():
 			for post in  db.coca.find({"sent":None},no_cursor_timeout=True):
 				id = post['id']
 				text = post['text'].replace('"',"'")
-				text = text.replace('\n', ' ')
+				text = text.replace("'",'').replace('%','').replace('\n','').replace('#','')
 				print(text)
 				sent = bot(unicode(text.encode('ascii', 'ignore')))
 				print(sent)
@@ -30,19 +34,23 @@ def bot(text):
 	browser = webdriver.Chrome(executable_path=r"/home/fer/Descargas/Chrome/chromedriver")
 	try:
 		browser.get(url)
+		timeout = 80
 		sleep(5)
 		i = browser.find_element_by_class_name('body-textarea')
 		i.send_keys('{"texto":"'+text+'"}')
-		
 		browser.find_element_by_class_name('submit').click()
-		sleep(3)
+
+		#element_present = EC.presence_of_element_located((By.CLASS_NAME, 'block response_body'))
+		#WebDriverWait(browser, timeout).until(element_present)
+		sleep(80)
 		html_source = browser.page_source
+		
 		sent=scraping(html_source)
-		#sleep(10)
+		sleep(1)
 		browser.quit()
 		return sent
-	except Exception,e:
-		print e#"Skipping proxy. Error occured"
+	except TimeoutException:
+		print "TIMEOUT"#"Skipping proxy. Error occured"
 		browser.quit()
     
 def scraping(html):

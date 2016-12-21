@@ -121,13 +121,13 @@ def grafica():
 
 	#a = db.coca.aggregate([{'$match':{'$and':[{'text':{'$regex':'interjet','$options':'i'}},{'sent',{'$ne':'s report'}}]}},{'$group':{'_id':'$sent','suma':{'$sum':1}}}])
 	a = db.coca.aggregate([{'$match':{'$and':[{'text':{'$regex':'interjet','$options':'i'}},{'sent':{'$ne':'s report'}}]}},{'$group':{'_id':'$sent','suma':{'$sum':1}}}])
-
+	b = list(db.coca.find({'$and':[{'text':{'$regex':'interjet','$options':'i'}}]},{"text":1,"sent":1,"day":1,"_id":0}))
 	print(a)
 	res = a["result"]
 	for i in res:
 		label.append(i["_id"])
 		cant.append(i["suma"])
-	arr = {"label":label,"cantidad":cant}	
+	arr = {"label":label,"cantidad":cant,"lista":b}	
 	return json.dumps(arr)
 	
 
