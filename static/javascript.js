@@ -16,12 +16,10 @@ $(document).ready(function(){
         	map.getProjectionObject()
         ), 4
     );
-    ///$('button').click(function() {
+    //*****************************PARTE DEL MAPA **************************
 
-    	//var user = $('#txtUsername').val();
-        //var pass = $('input[name="password"]').val();
-        $.ajax({
-            url: '/mong',
+          $.ajax({
+            url: '/mongo',
             data: $('form').serialize(),
             type: 'POST',
             success: function(response) {
@@ -186,7 +184,8 @@ $(document).ready(function(){
             }
         });//FIN AJAX*/
     //});
-
+  //*************************************************FIN DEL MAPA **************************
+   //*************************************************INICIO GRÁFICA ******************************* 
     var obj_inter;
 
     $('#btn_chart').click(function() {
@@ -195,6 +194,7 @@ $(document).ready(function(){
            ajax_call();                       
         }, 5000);
         
+        ajax_call(); 
 
         function ajax_call(){
             $.ajax({
@@ -234,12 +234,17 @@ $(document).ready(function(){
         }//fin functionajax_call()
         
     });//fin btn_chart
+//*************************************** FIN GRÁFICA *******************************
 
+
+//************************************* INICIO REPORTE ******************************
+    var xmlDoc;
      $('#btn_report').click(function() {
 
         setInterval(function() {
            report();                       
         }, 7000);
+       
         
 
         function report(){  
@@ -277,22 +282,42 @@ $(document).ready(function(){
                                 
             var xm = xmllint.validateXML(Module);
                 if (xm.errors == null){
-                    var xmlDoc = $.parseXML(xml_str);
+                     xmlDoc= $.parseXML(xml_str);
                     if(xmlDoc){
+                        
                         //--------------------------construye la tabla------------------------------- 
-                        var table = "<tr><th>Text</th><th>Sentimiento</th><th>Day</th></tr>";
-                        var x = xmlDoc.getElementsByTagName("tuit");
-                        for(i = 0 ; i<x.length;i++){
-                            table += "<tr><td>"+x[i].getElementsByTagName("text")[0].childNodes[0].nodeValue+
-                            "</td><td>"+x[i].getElementsByTagName("sent")[0].childNodes[0].nodeValue+ "</td><td>"+
-                            x[i].getElementsByTagName("day")[0].childNodes[0].nodeValue+"</td></tr>";
-                        }     
-                    }   document.getElementById("demo").innerHTML = table;
+                        if (sentimiento == 'POSITIVA'){
+                            displayResult(xmlDoc,'#f90312');    
+                        }else if (sentimiento == 'NEGATIVA'){
+                            displayResult(xmlDoc,' #0315ac'); 
+                        }else {
+                             displayResult(xmlDoc,'#28e815'); 
+                        }
+                        
+                    }     
+                      
                 }else
                     alert(xm.errors);
             //----------------VALIDA XML----------------------
         }//fin function report
+
+       function displayResult(xml_doc,color){
+            aux= '<?xml version="1.0" encoding="UTF-8"?><xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:template match="/"><h2>Tuits Sobre Interjet</h2><table border="3"><tr bgcolor="'+color+'"><th style="text-align:center">Text</th><th style="text-align:center">Sentimiento</th><th style="text-align:center">Día</th></tr><xsl:for-each select="tuits/tuit"><tr><td><xsl:value-of select="text" /></td><td><xsl:value-of select="sent" /></td><td><xsl:value-of select="day" /></td></tr></xsl:for-each></table></xsl:template></xsl:stylesheet>';
+            xslDoc= $.parseXML(aux);
+            xml = xml_doc;
+            xsl = xslDoc;
+            
+            if (document.implementation && document.implementation.createDocument){
+              xsltProcessor = new XSLTProcessor();
+              xsltProcessor.importStylesheet(xsl);
+              resultDocument = xsltProcessor.transformToFragment(xml, document);
+              document.getElementById("example").innerHTML="";//limpia antes de colocar la tabla
+              document.getElementById("example").appendChild(resultDocument);
+            }
+              
+        }
+
         
     });//FIN BUTTON REPORT
-
+// ********************************************************** FIN REPORTE ************************************
 });
