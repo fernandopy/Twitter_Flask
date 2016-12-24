@@ -1,3 +1,6 @@
+#Author
+#Fernando Estrada Sandoval 
+
 #!/usr/bin/python
 # -*- coding: UTF8 -*-
 from tweepy import OAuthHandler
