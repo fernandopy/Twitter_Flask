@@ -14,11 +14,6 @@ from suds.client import Client
 import unirest
 import six
 from six.moves import http_client as httplib
-from selenium import webdriver
-from time import sleep
-from bs4 import BeautifulSoup
-import requests
-import threading
 
 requests.packages.urllib3.disable_warnings()
 
